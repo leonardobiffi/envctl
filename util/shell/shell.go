@@ -4,7 +4,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/pratishshr/envault/util/system/exit"
+	"github.com/leonardobiffi/envctl/util/system/exit"
 )
 
 func convertToSlice(secrets map[string]string) []string {
@@ -24,7 +24,7 @@ func Execute(command string, secrets map[string]string) {
 	env := append(os.Environ(), convertToSlice(secrets)...)
 
 	cmd := exec.Command("sh", "-c", command)
-	cmd.Env = append(env, "IS_ENVAULT=true")
+	cmd.Env = append(env, "IS_ENVCTL=true")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

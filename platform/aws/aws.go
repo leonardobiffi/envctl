@@ -1,79 +1,83 @@
 package aws
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/secretsmanager"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
+	"github.com/leonardobiffi/envctl/util/system/exit"
 )
 
-const ErrCodeInvalidCredentialsException = "NoCredentialProviders"
+// TODO: add service function
 
-// GetSecrets ...
+// GetSecrets returns a map of secrets from AWS Secrets Manager.
 func GetSecrets(profile string, region string, secretName string) map[string]string {
-	if profile == "" {
-		profile = "default"
+	var opts []func(*config.LoadOptions) error
+	ctx := context.TODO()
+	if profile != "" {
+		opts = append(opts, config.WithSharedConfigProfile(profile))
 	}
 
-	client := secretsmanager.New(session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-		Profile:           profile,
-		Config: aws.Config{
-			Region: aws.String(region),
-		},
-	})))
+	if region != "" {
+		opts = append(opts, config.WithRegion(region))
+	}
+
+	cfg, err := config.LoadDefaultConfig(ctx, opts...)
+	if err != nil {
+		exit.Error(err.Error())
+	}
+
+	// Create Secrets Manager client
+	svc := secretsmanager.NewFromConfig(cfg)
 
 	input := &secretsmanager.GetSecretValueInput{
 		SecretId:     aws.String(secretName),
 		VersionStage: aws.String("AWSCURRENT"),
 	}
 
-	result, err := client.GetSecretValue(input)
-
+	result, err := svc.GetSecretValue(ctx, input)
 	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			switch aerr.Code() {
-			case secretsmanager.ErrCodeDecryptionFailure:
-				// Secrets Manager can't decrypt the protected secret text using the provided KMS key.
-				fmt.Println(secretsmanager.ErrCodeDecryptionFailure, aerr.Error())
-
-			case secretsmanager.ErrCodeInternalServiceError:
-				// An error occurred on the server side.
-				fmt.Println(secretsmanager.ErrCodeInternalServiceError, aerr.Error())
-
-			case secretsmanager.ErrCodeInvalidParameterException:
-				// You provided an invalid value for a parameter.
-				fmt.Println(secretsmanager.ErrCodeInvalidParameterException, aerr.Error())
-
-			case secretsmanager.ErrCodeInvalidRequestException:
-				// You provided a parameter value that is not valid for the current state of the resource.
-				fmt.Println(secretsmanager.ErrCodeInvalidRequestException, aerr.Error())
-
-			case secretsmanager.ErrCodeResourceNotFoundException:
-				// We can't find the resource that you asked for.
-				fmt.Println(secretsmanager.ErrCodeResourceNotFoundException, aerr.Error())
-
-			case ErrCodeInvalidCredentialsException:
-				fmt.Println("Please provide valid AWS credentials.")
-
-			default:
-				fmt.Println(aerr.Error())
-			}
-		} else {
-			// Print the error, cast err to awserr.Error to get the Code and
-			// Message from an error.
-			fmt.Println(err.Error())
-		}
-		return nil
+		exit.Error(err.Error())
 	}
 
 	secretString := *result.SecretString
 	data := map[string]string{}
 
 	json.Unmarshal([]byte(secretString), &data)
-
 	return data
+}
+
+// UpdateSecrets adds a secret to AWS Secrets Manager from .env file
+func UpdateSecrets(profile string, region string, secretName string, data map[string]string) {
+	var opts []func(*config.LoadOptions) error
+	ctx := context.TODO()
+	if profile != "" {
+		opts = append(opts, config.WithSharedConfigProfile(profile))
+	}
+
+	if region != "" {
+		opts = append(opts, config.WithRegion(region))
+	}
+
+	cfg, err := config.LoadDefaultConfig(ctx, opts...)
+	if err != nil {
+		exit.Error(err.Error())
+	}
+
+	// Create Secrets Manager client
+	svc := secretsmanager.NewFromConfig(cfg)
+
+	secretString, _ := json.Marshal(data)
+
+	input := &secretsmanager.UpdateSecretInput{
+		SecretId:     aws.String(secretName),
+		SecretString: aws.String(string(secretString)),
+	}
+
+	_, err = svc.UpdateSecret(ctx, input)
+	if err != nil {
+		exit.Error(err.Error())
+	}
 }

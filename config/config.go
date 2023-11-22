@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/pratishshr/envault/util/file"
-	"github.com/pratishshr/envault/util/system/exit"
+	"github.com/leonardobiffi/envctl/util/file"
+	"github.com/leonardobiffi/envctl/util/system/exit"
 )
 
 // Config for the project.
@@ -18,7 +18,7 @@ type Config struct {
 	DefaultEnvironment string            `json:"defaultEnv"`
 }
 
-var fileName = "envault.json"
+var fileName = "envctl.json"
 
 func parseConfig(configFile []byte) *Config {
 	configuration := &Config{}

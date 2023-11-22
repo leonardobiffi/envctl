@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/pratishshr/envault/config"
-	"github.com/pratishshr/envault/platform/aws"
+	"github.com/leonardobiffi/envctl/config"
+	"github.com/leonardobiffi/envctl/platform/aws"
 )
 
 type awsAnswers struct {

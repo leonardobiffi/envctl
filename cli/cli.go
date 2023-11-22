@@ -22,13 +22,14 @@ func Initialize(info *Info) error {
 	var region string
 	var profile string
 	var envFile string
+	var upper bool
 
 	app := cli.NewApp()
 	app.Name = info.Name
 	app.Version = info.Version
 	app.Usage = info.Description
 	app.Authors = []cli.Author{
-		cli.Author{
+		{
 			Name:  info.AuthorName,
 			Email: info.AuthorEmail,
 		},
@@ -60,36 +61,47 @@ func Initialize(info *Info) error {
 			Usage:       "Use .env file",
 			Destination: &envFile,
 		},
+		cli.BoolFlag{
+			Name:        "upper, u",
+			Usage:       "Set Upper Case for all environment variables",
+			Destination: &upper,
+		},
 	}
 
 	app.Commands = []cli.Command{
-		cli.Command{
+		{
 			Name:  "setup",
-			Usage: "Setup envault configuration",
+			Usage: "Setup envctl configuration",
 			Action: func(ctx *cli.Context) error {
 				Setup()
-
 				return nil
 			},
 		},
-		cli.Command{
+		{
 			Name:  "list",
 			Usage: "List environment variables stored in Secrets Manager",
 			Flags: flags,
 			Action: func(ctx *cli.Context) error {
-				List(secretName, env, region, profile, envFile)
-
+				List(secretName, env, region, profile, envFile, upper)
 				return nil
 			},
 		},
-		cli.Command{
+		{
+			Name:  "update",
+			Usage: "Update environment variables from env file to Secrets Manager",
+			Flags: flags,
+			Action: func(ctx *cli.Context) error {
+				Update(secretName, env, region, profile, envFile)
+				return nil
+			},
+		},
+		{
 			Name:      "run",
 			Usage:     "Run a command with the injected env variables",
 			ArgsUsage: "[command]",
 			Flags:     flags,
 			Action: func(ctx *cli.Context) error {
 				Run(secretName, ctx.Args().Get(0), env, region, profile, envFile)
-
 				return nil
 			},
 		},

@@ -1,29 +1,32 @@
-# Envault
-![GitHub release](https://img.shields.io/github/release/leonardobiffi/envault.svg?style=flat)
-![GitHub](https://img.shields.io/github/license/leonardobiffi/envault.svg?style=flat)
+# Envctl
+![GitHub release](https://img.shields.io/github/release/leonardobiffi/envctl.svg?style=flat)
+![GitHub](https://img.shields.io/github/license/leonardobiffi/envctl.svg?style=flat)
 
-A simple CLI tool to run a process with secrets from AWS Secrets Manager.
+A simple CLI tool to run a process with secrets from AWS Secrets Manager
+
+forked from [pratishshr/envault](https://github.com/pratishshr/envault)
 
 ## About
 
-Envault focuses on integrating AWS Secrets Manager in your application with ease without having to write a single line of code in your source files. Simply run your commands with the Envault CLI and the secrets will be injected in that process.
+Envctl focuses on integrating AWS Secrets Manager in your application with ease without having to write a single line of code in your source files. Simply run your commands with the envctl CLI and the secrets will be injected in that process.
 
 ## Table Of Contents
-1. [Install Envault](#1-install-envault)
+1. [Install envctl](#1-install-envctl)
 2. [Verify Installation](#2-verify-installation)
 3. [AWS Credentials](#3-aws-credentials)
 4. [Setup](#4-setup)
 5. [List Secrets](#5-list-secrets)
-6. [Run With Secrets](#6-run-with-secrets)
-5. [Usage with CI/CD](#7-usage-with-cicd)
-6. [Using custom .env files](#8-using-custom-env-files)
+5. [Update Secrets](#6-update-secrets)
+7. [Run With Secrets](#7-run-with-secrets)
+8. [Usage with CI/CD](#8-usage-with-cicd)
+9. [Using custom .env files](#89-using-custom-env-files)
 
 ## Usage
 
-### 1. Install Envault:
+### 1. Install envctl:
 
 ```shell
-curl -sf https://raw.githubusercontent.com/leonardobiffi/envault/master/install.sh | sudo sh
+curl -sf https://raw.githubusercontent.com/leonardobiffi/envctl/master/scripts/install.sh | sh
 ```
 
 Note: 
@@ -34,12 +37,12 @@ Then, simply place the binary in your local `bin`.
 ### 2. Verify Installation:
 
 ```shell
-envault
+envctl
 ```
 
 ### 3. AWS Credentials
 
-Before using envault, you have to provide your AWS credentials. This allows envault to fetch secrets from the AWS Secrets Manager. Also, make sure you have the correct access for your credentials.
+Before using envctl, you have to provide your AWS credentials. This allows envctl to fetch secrets from the AWS Secrets Manager. Also, make sure you have the correct access for your credentials.
 
 Simply create `~/.aws/credentials` file for storing AWS credentials. <br/>
 Example:
@@ -56,7 +59,7 @@ To know more about AWS configurations, view [Configuring the AWS CLI](https://do
 Go to your project directory and run `setup` command to initiate the setup process.
 
 ```shell
-envault setup
+envctl setup
 ```
 
 - Choose your AWS profile that was setup earlier. <br>
@@ -74,7 +77,8 @@ envault setup
  Add an environment (eg. dev): uat
  Secret Name: api/uat
 ```
-`envault.json` file will be created in your project directory like below.
+
+`envctl.json` file will be created in your project directory like below.
 ```json
 {
   "profile": "default",
@@ -92,38 +96,46 @@ envault setup
 ### 5. List secrets
 
 ```shell
-envault list -e dev
+envctl list -e dev
 ```
 ```shell
-envault list -e uat
+envctl list -e uat
 ```
-Here `dev` and `uat` are the environments you specified in `envault.json`.
+Here `dev` and `uat` are the environments you specified in `envctl.json`.
 
 
-If you have not setup a `envault.json` file, you can still pass `--secret` or `-s` flag with the secrets path.
+If you have not setup a `envctl.json` file, you can still pass `--secret` or `-s` flag with the secrets path.
 This will use the `default` profile from your `~/.aws/credentials` file.
 ```shell
-envault list --secret=api/dev
+envctl list --secret=api/dev
 ```
 ```shell
-envault list --secret=api/uat
+envctl list --secret=api/uat
 ```
 
-### 6. Run with secrets
+### 6. Update secrets
+
+This will update secrets with content in .env file
 
 ```shell
-envault run 'yarn build' -e dev
+envctl update --secret=/dev/service/app --envfile .env
+```
+
+### 7. Run with secrets
+
+```shell
+envctl run 'yarn build' -e dev
 ```
 This will inject the secrets from `dev` to the `yarn build` process.
 
-Similarly, if you have not setup a `envault.json` file, you can still pass `--secret` or `-s` flag with the secrets path.
+Similarly, if you have not setup a `envctl.json` file, you can still pass `--secret` or `-s` flag with the secrets path.
 This will use the `default` profile from your `~/.aws/credentials` file.
 
 ```shell
-envault run 'yarn build' --secret=api/dev
+envctl run 'yarn build' --secret=api/dev
 ```
 
-### 7. Usage with CI/CD:
+### 8. Usage with CI/CD:
 
 Instead of setting up a `~/.aws/credentials` file. You can also use the following environment variables to set up your AWS credentials.
 
@@ -132,15 +144,15 @@ Instead of setting up a `~/.aws/credentials` file. You can also use the followin
 | AWS_ACCESS_KEY_ID | Your AWS access key|
 | AWS_SECRET_ACCESS_KEY | Your AWS secret key|
 | AWS_REGION | AWS region where you added your secret|
-| ENVIRONMENT | Environment which you set in envault.json |
+| ENVIRONMENT | Environment which you set in envctl.json |
 | SECRET_NAME | AWS Secret Name |
 
 
-### 8. Using custom .env files
+### 9. Using custom .env files
 If you want to inject environment keys from a file instead of using AWS Secrets Manager. You can use the`-ef` flag.
 
 ```shell
-envault run 'envault run 'go run main.go' -ef env/staging.env
+envctl run 'envctl run 'go run main.go' -ef env/staging.env
 ```
 
 
