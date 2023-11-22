@@ -26,7 +26,7 @@ Envctl focuses on integrating AWS Secrets Manager in your application with ease 
 ### 1. Install envctl:
 
 ```shell
-curl -sf https://raw.githubusercontent.com/leonardobiffi/envctl/master/scripts/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/leonardobiffi/envctl/master/scripts/install.sh | sh
 ```
 
 Note: 
