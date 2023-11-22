@@ -1,7 +1,6 @@
 # Envault
-![GitHub release](https://img.shields.io/github/release/pratishshr/envault.svg?style=flat)
-![Travis (.org)](https://img.shields.io/travis/pratishshr/envault.svg?style=flat)
-![GitHub](https://img.shields.io/github/license/pratishshr/envault.svg?style=flat)
+![GitHub release](https://img.shields.io/github/release/leonardobiffi/envault.svg?style=flat)
+![GitHub](https://img.shields.io/github/license/leonardobiffi/envault.svg?style=flat)
 
 A simple CLI tool to run a process with secrets from AWS Secrets Manager.
 
@@ -24,7 +23,7 @@ Envault focuses on integrating AWS Secrets Manager in your application with ease
 ### 1. Install Envault:
 
 ```shell
-curl -sf https://raw.githubusercontent.com/pratishshr/envault/master/install.sh | sudo sh
+curl -sf https://raw.githubusercontent.com/leonardobiffi/envault/master/install.sh | sudo sh
 ```
 
 Note: 
