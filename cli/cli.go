@@ -18,6 +18,7 @@ type Info struct {
 // Initialize and bootstrap the CLI.
 func Initialize(info *Info) error {
 	var secretName string
+	var parameterPath string
 	var env string
 	var region string
 	var profile string
@@ -40,6 +41,11 @@ func Initialize(info *Info) error {
 			Name:        "secret, s",
 			Usage:       "Secret's Name to fetch environment from",
 			Destination: &secretName,
+		},
+		cli.StringFlag{
+			Name:        "parameter, ps",
+			Usage:       "Parameter Store Path to fetch environment from",
+			Destination: &parameterPath,
 		},
 		cli.StringFlag{
 			Name:        "env, e",
@@ -79,10 +85,17 @@ func Initialize(info *Info) error {
 		},
 		{
 			Name:  "list",
-			Usage: "List environment variables stored in Secrets Manager",
+			Usage: "List environment variables stored in Secrets Manager or Parameter Store",
 			Flags: flags,
 			Action: func(ctx *cli.Context) error {
-				List(secretName, env, region, profile, envFile, upper)
+				if secretName != "" {
+					GetSecrets(secretName, env, region, profile, envFile, upper)
+					return nil
+				}
+				if parameterPath != "" {
+					GetParameters(parameterPath, env, region, profile, envFile)
+					return nil
+				}
 				return nil
 			},
 		},
@@ -91,7 +104,14 @@ func Initialize(info *Info) error {
 			Usage: "Update environment variables from env file to Secrets Manager",
 			Flags: flags,
 			Action: func(ctx *cli.Context) error {
-				Update(secretName, env, region, profile, envFile)
+				if secretName != "" {
+					UpdateSecrets(secretName, env, region, profile, envFile)
+					return nil
+				}
+				if parameterPath != "" {
+					UpdateParameters(parameterPath, env, region, profile, envFile)
+					return nil
+				}
 				return nil
 			},
 		},

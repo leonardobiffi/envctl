@@ -2,7 +2,7 @@
 ![GitHub release](https://img.shields.io/github/release/leonardobiffi/envctl.svg?style=flat)
 ![GitHub](https://img.shields.io/github/license/leonardobiffi/envctl.svg?style=flat)
 
-A simple CLI tool to run a process with secrets from AWS Secrets Manager
+A simple CLI tool to run a process with secrets from AWS Secrets Manager or AWS Parameter Store
 
 forked from [pratishshr/envault](https://github.com/pratishshr/envault)
 
@@ -113,12 +113,26 @@ envctl list --secret=api/dev
 envctl list --secret=api/uat
 ```
 
+You also can list environments from AWS Parameter Store
+
+```shell
+envctl list --parameter=api/dev
+```
+```shell
+envctl list --parameter=api/uat
+```
+
 ### 6. Update secrets
 
 This will update secrets with content in .env file
 
 ```shell
 envctl update --secret=/dev/service/app --envfile .env
+```
+
+Or update secret on Parameter Store
+```shell
+envctl update --parameter=/dev/service/app --envfile .env
 ```
 
 ### 7. Run with secrets
@@ -146,7 +160,7 @@ Instead of setting up a `~/.aws/credentials` file. You can also use the followin
 | AWS_REGION | AWS region where you added your secret|
 | ENVIRONMENT | Environment which you set in envctl.json |
 | SECRET_NAME | AWS Secret Name |
-
+| PARAMETER_NAME | AWS Parameter Store Path |
 
 ### 9. Using custom .env files
 If you want to inject environment keys from a file instead of using AWS Secrets Manager. You can use the`-ef` flag.
@@ -154,7 +168,6 @@ If you want to inject environment keys from a file instead of using AWS Secrets 
 ```shell
 envctl run 'envctl run 'go run main.go' -ef env/staging.env
 ```
-
 
 ## License
 
